@@ -10,7 +10,7 @@ Usage of straico-cli:
   -l, --list-models           List models
   -m, --model string          Model to use (default "anthropic/claude-3-haiku:beta")
       --save-key string       Straico API key
-      --save-model            Straico API key
+      --save-model            Use the model listed by -m for future queries
       --youtube-url strings   --youtube-url link1 --youtube-url link2
 ```
 
