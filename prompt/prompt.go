@@ -34,6 +34,10 @@ func (p Prompt) Request(key string, text string) (response StraicoResponse, err 
 	resp, _ := client.Do(req)
 	defer resp.Body.Close()
 
+	if resp.StatusCode > 299 || resp.StatusCode < 200 {
+		errorMessage := fmt.Errorf("request failed. Error: %s", resp.Status)
+		return StraicoResponse{}, errorMessage
+	}
 	bodyText, err := io.ReadAll(resp.Body)
 	if err != nil {
 		errorMessage := fmt.Errorf("unable to read body. Error: %s", err.Error())

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	flag "github.com/spf13/pflag"
 	"log"
 	"os"
@@ -15,17 +16,20 @@ type ConfigStruct struct {
 
 // Config rootCmd represents the base command when called without any subcommands
 var (
-	Config        ConfigStruct
-	model         string
-	apiKey        string
-	youtubeYourls *[]string
-	fileUrls      *[]string
+	Config          ConfigStruct
+	model           string
+	apiKey          string
+	listModels      bool
+	informationOnly bool
+	youtubeYourls   *[]string
+	fileUrls        *[]string
 )
 
 func Init() {
 	flag.StringVar(&model, "model", "anthropic/claude-3-haiku:beta", "Model to use")
 	youtubeYourls = flag.StringSlice("youtube-url", nil, "--youtube-url link1 --youtube-url link2")
 	fileUrls = flag.StringSlice("file-url", nil, "--file-url link1 --file-url link2")
+	flag.BoolVar(&listModels, "list-models", false, "List models")
 	flag.StringVar(&apiKey, "save-key", "", "Straico API key")
 	flag.Parse()
 
@@ -38,6 +42,23 @@ func Init() {
 		} else {
 			os.Stdout.Write([]byte("config saved\n"))
 		}
+	}
+
+	if listModels {
+		informationOnly = true
+		models, err := GetModels(configFile.Key)
+		if err != nil {
+			os.Stderr.Write([]byte(err.Error()))
+		}
+
+		for _, m := range models {
+			outputString := fmt.Sprintf("%s\n\tModel: %s\n\tPricing: %d\n", m.Name, m.Id, m.Pricing)
+			os.Stdout.Write([]byte(outputString))
+		}
+	}
+	// If information only, we exit after displaying the info
+	if informationOnly {
+		os.Exit(0)
 	}
 
 	Config.FlagMessage = strings.Join(flag.Args(), " ")
