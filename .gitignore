@@ -1,0 +1,5 @@
+.idea/
+straico-cli
+*.swp
+
+build/
