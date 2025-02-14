@@ -8,7 +8,8 @@ import (
 )
 
 type ConfigFile struct {
-	Key string `json:"key"`
+	Key   string `json:"key"`
+	Model string `json:"model,omitempty"`
 }
 
 func LoadConfig() (*ConfigFile, error) {

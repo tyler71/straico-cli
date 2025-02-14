@@ -19,6 +19,8 @@ var (
 	Config          ConfigStruct
 	model           string
 	apiKey          string
+	saveConfig      bool
+	saveModel       bool
 	listModels      bool
 	informationOnly bool
 	youtubeYourls   *[]string
@@ -26,16 +28,28 @@ var (
 )
 
 func Init() {
-	flag.StringVar(&model, "model", "anthropic/claude-3-haiku:beta", "Model to use")
+	flag.BoolVar(&saveModel, "save-model", false, "Straico API key")
+	flag.StringVarP(&model, "model", "m", "anthropic/claude-3-haiku:beta", "Model to use")
 	youtubeYourls = flag.StringSlice("youtube-url", nil, "--youtube-url link1 --youtube-url link2")
 	fileUrls = flag.StringSlice("file-url", nil, "--file-url link1 --file-url link2")
-	flag.BoolVar(&listModels, "list-models", false, "List models")
+	flag.BoolVarP(&listModels, "list-models", "l", false, "List models")
 	flag.StringVar(&apiKey, "save-key", "", "Straico API key")
 	flag.Parse()
 
+	modelFlagModified := flag.Lookup("model").Changed
+
 	configFile, _ := LoadConfig()
+	if saveModel == true && modelFlagModified {
+		saveConfig = true
+		informationOnly = true
+		configFile.Model = model
+	}
 	if apiKey != "" {
+		saveConfig = true
 		configFile.Key = apiKey
+	}
+
+	if saveConfig {
 		err := SaveConfig(configFile)
 		if err != nil {
 			log.Println("Unable to save config file")
