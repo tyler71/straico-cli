@@ -21,3 +21,6 @@ straico-cli 'What is the history behind the French Quarter?'
 ```bash
 straico-cli --save-key Xl-YourAPIKey123
 ```
+
+## Resources
+- [Models](https://straico.com/multimodel/)
