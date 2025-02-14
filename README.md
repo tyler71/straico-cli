@@ -24,3 +24,4 @@ straico-cli --save-key Xl-YourAPIKey123
 
 ## Resources
 - [Models](https://straico.com/multimodel/)
+- [API Doc - Getting API Key](https://documenter.getpostman.com/view/5900072/2s9YyzddrR)
