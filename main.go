@@ -18,7 +18,10 @@ func main() {
 		log.Fatalln(err)
 		return
 	}
-	_, err = os.Stdout.Write([]byte(straicoResponse.Data.Completions[config.Prompt.Model[0]].Completion.Choices[0].Message.Content))
+
+	message := straicoResponse.Data.Completions[config.Prompt.Model[0]].Completion.Choices[0].Message.Content
+
+	_, err = os.Stdout.Write([]byte(message + "\n"))
 	if err != nil {
 		os.Stderr.Write([]byte(err.Error()))
 	}

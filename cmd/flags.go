@@ -28,7 +28,7 @@ var (
 )
 
 func Init() {
-	flag.BoolVar(&saveModel, "save-model", false, "Straico API key")
+	flag.BoolVar(&saveModel, "save-model", false, "Use the model listed by -m for future queries")
 	flag.StringVarP(&model, "model", "m", "anthropic/claude-3-haiku:beta", "Model to use")
 	youtubeYourls = flag.StringSlice("youtube-url", nil, "--youtube-url link1 --youtube-url link2")
 	fileUrls = flag.StringSlice("file-url", nil, "--file-url link1 --file-url link2")
