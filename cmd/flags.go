@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	p "straico-cli.tylery.com/m/v2/prompt"
-	"strings"
 )
 
 type ConfigStruct struct {
@@ -14,7 +13,6 @@ type ConfigStruct struct {
 	Prompt      p.Prompt
 }
 
-// Config rootCmd represents the base command when called without any subcommands
 var (
 	Config          ConfigStruct
 	model           string
@@ -70,18 +68,11 @@ func Init() {
 			os.Stdout.Write([]byte(outputString))
 		}
 	}
-	// If information only, we exit after displaying the info
+
 	if informationOnly {
 		os.Exit(0)
 	}
 
-	Config.FlagMessage = strings.Join(flag.Args(), " ")
-	if len(Config.FlagMessage) == 0 {
-		if apiKey == "" {
-			os.Stderr.Write([]byte("Error: You must provide a message to send.\n"))
-		}
-		os.Exit(0)
-	}
 	Config.Prompt.Model = []string{model}
 	Config.Prompt.YoutubeUrls = *youtubeYourls
 	Config.Prompt.FileUrls = *fileUrls

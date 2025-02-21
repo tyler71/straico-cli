@@ -4,25 +4,30 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package main
 
 import (
+	tea "github.com/charmbracelet/bubbletea"
 	"log"
 	"os"
 	"straico-cli.tylery.com/m/v2/cmd"
+	"straico-cli.tylery.com/m/v2/tui"
 )
 
 func main() {
 	cmd.Init()
-	configFile, _ := cmd.LoadConfig()
-	config := cmd.Config
-	straicoResponse, err := config.Prompt.Request(configFile.Key, config.FlagMessage)
+	configFile, err := cmd.LoadConfig()
 	if err != nil {
 		log.Fatalln(err)
 		return
 	}
 
-	message := straicoResponse.Data.Completions[config.Prompt.Model[0]].Completion.Choices[0].Message.Content
+	// Create program with alternate screen buffer to prevent terminal scrolling
+	p := tea.NewProgram(
+		tui.NewModel(configFile),
+		tea.WithAltScreen(),       // Use alternate screen buffer
+		tea.WithMouseCellMotion(), // Capture mouse events
+	)
 
-	_, err = os.Stdout.Write([]byte(message + "\n"))
-	if err != nil {
-		os.Stderr.Write([]byte(err.Error()))
+	if err := p.Start(); err != nil {
+		log.Fatal("Error running program:", err)
+		os.Exit(1)
 	}
 }

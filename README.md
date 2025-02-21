@@ -1,6 +1,5 @@
 # Straico-Cli
-
-![Hero image of straico-cli output asking about the history of the French Quarter](https://github.com/user-attachments/assets/4a0f14f8-c4c2-4dc8-aedf-706e85c3535e)
+![Hero image of straico-cli output asking about the history of the French Quarter](https://github.com/user-attachments/assets/076050be-87c8-4bea-985d-7e25ec625400)
 
 ## Usage
 
