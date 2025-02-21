@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 )
 
 type ConfigFile struct {
@@ -12,13 +13,28 @@ type ConfigFile struct {
 	Model string `json:"model,omitempty"`
 }
 
-func LoadConfig() (*ConfigFile, error) {
+func getConfigDir() (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return nil, fmt.Errorf("error getting home directory: %w", err)
+		return "", fmt.Errorf("error getting home directory: %w", err)
 	}
 
-	configDir := filepath.Join(home, ".config", "straico-cli")
+	switch runtime.GOOS {
+	case "windows":
+		return filepath.Join(home, "AppData", "Roaming", "straico-cli"), nil
+	case "darwin":
+		return filepath.Join(home, "Library", "Application Support", "straico-cli"), nil
+	default: // linux and others
+		return filepath.Join(home, ".config", "straico-cli"), nil
+	}
+}
+
+func LoadConfig() (*ConfigFile, error) {
+	configDir, err := getConfigDir()
+	if err != nil {
+		return nil, err
+	}
+
 	configPath := filepath.Join(configDir, "config.json")
 
 	// Ensure config directory exists
@@ -43,12 +59,11 @@ func LoadConfig() (*ConfigFile, error) {
 }
 
 func SaveConfig(config *ConfigFile) error {
-	home, err := os.UserHomeDir()
+	configDir, err := getConfigDir()
 	if err != nil {
-		return fmt.Errorf("error getting home directory: %w", err)
+		return err
 	}
 
-	configDir := filepath.Join(home, ".config", "straico-cli")
 	configPath := filepath.Join(configDir, "config.json")
 
 	encodedConfig, err := json.MarshalIndent(config, "", "  ")

@@ -9,7 +9,7 @@ then
 else
 # Operating systems and architectures to build for
   os_archs=(
-#    "darwin/amd64"
+    "darwin/amd64"
 #    "darwin/arm64"
 #    "dragonfly/amd64"
 #    "freebsd/386"
@@ -35,11 +35,9 @@ else
 #    "plan9/amd64"
 #    "solaris/amd64"
 #    "windows/386"
-
-#    "windows/amd64"
+    "windows/amd64"
   )
 fi
-
 
 # Loop through each OS/architecture combination
 mkdir -p build
