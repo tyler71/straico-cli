@@ -6,14 +6,16 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"straico-cli.tylery.com/m/v2/prompt"
 )
 
 type ConfigFile struct {
-	Key   string `json:"key"`
-	Model string `json:"model,omitempty"`
+	Key    string        `json:"key"`
+	Model  string        `json:"model"`
+	Prompt prompt.Prompt `json:"prompt"`
 }
 
-func getConfigDir() (string, error) {
+func (c *ConfigFile) getConfigDir() (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", fmt.Errorf("error getting home directory: %w", err)
@@ -29,44 +31,43 @@ func getConfigDir() (string, error) {
 	}
 }
 
-func LoadConfig() (*ConfigFile, error) {
-	configDir, err := getConfigDir()
-	if err != nil {
-		return nil, err
-	}
-
-	configPath := filepath.Join(configDir, "config.json")
-
-	// Ensure config directory exists
-	if err := os.MkdirAll(configDir, 0755); err != nil {
-		return nil, fmt.Errorf("error creating config directory: %w", err)
-	}
-
-	data, err := os.ReadFile(configPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, nil // Return nil if file doesn't exist
-		}
-		return nil, fmt.Errorf("error reading config file: %w", err)
-	}
-
-	var config ConfigFile
-	if err := json.Unmarshal(data, &config); err != nil {
-		return nil, fmt.Errorf("error parsing config file: %w", err)
-	}
-
-	return &config, nil
-}
-
-func SaveConfig(config *ConfigFile) error {
-	configDir, err := getConfigDir()
+func (c *ConfigFile) LoadConfig() error {
+	configDir, err := c.getConfigDir()
 	if err != nil {
 		return err
 	}
 
 	configPath := filepath.Join(configDir, "config.json")
 
-	encodedConfig, err := json.MarshalIndent(config, "", "  ")
+	// Ensure config directory exists
+	if err := os.MkdirAll(configDir, 0755); err != nil {
+		return fmt.Errorf("error creating config directory: %w", err)
+	}
+
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil // Return nil if file doesn't exist
+		}
+		return fmt.Errorf("error reading config file: %w", err)
+	}
+
+	if err := json.Unmarshal(data, c); err != nil {
+		return fmt.Errorf("error parsing config file: %w", err)
+	}
+
+	return nil
+}
+
+func (c *ConfigFile) SaveConfig() error {
+	configDir, err := c.getConfigDir()
+	if err != nil {
+		return err
+	}
+
+	configPath := filepath.Join(configDir, "config.json")
+
+	encodedConfig, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
 		return fmt.Errorf("error serializing config file: %w", err)
 	}

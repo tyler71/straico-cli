@@ -5,16 +5,9 @@ import (
 	flag "github.com/spf13/pflag"
 	"log"
 	"os"
-	p "straico-cli.tylery.com/m/v2/prompt"
 )
 
-type ConfigStruct struct {
-	FlagMessage string
-	Prompt      p.Prompt
-}
-
 var (
-	Config          ConfigStruct
 	model           string
 	apiKey          string
 	saveConfig      bool
@@ -25,7 +18,7 @@ var (
 	fileUrls        *[]string
 )
 
-func Init() {
+func Init() *ConfigFile {
 	flag.BoolVar(&saveModel, "save-model", false, "Use the model listed by -m for future queries")
 	flag.StringVarP(&model, "model", "m", "anthropic/claude-3-haiku:beta", "Model to use")
 	youtubeYourls = flag.StringSlice("youtube-url", nil, "--youtube-url link1 --youtube-url link2")
@@ -36,7 +29,11 @@ func Init() {
 
 	modelFlagModified := flag.Lookup("model").Changed
 
-	configFile, _ := LoadConfig()
+	configFile := ConfigFile{}
+	err := configFile.LoadConfig()
+	if err != nil {
+		os.Stderr.Write([]byte(err.Error()))
+	}
 	if saveModel == true && modelFlagModified {
 		saveConfig = true
 		informationOnly = true
@@ -48,7 +45,7 @@ func Init() {
 	}
 
 	if saveConfig {
-		err := SaveConfig(configFile)
+		err := configFile.SaveConfig()
 		if err != nil {
 			log.Println("Unable to save config file")
 		} else {
@@ -73,7 +70,9 @@ func Init() {
 		os.Exit(0)
 	}
 
-	Config.Prompt.Model = []string{model}
-	Config.Prompt.YoutubeUrls = *youtubeYourls
-	Config.Prompt.FileUrls = *fileUrls
+	configFile.Prompt.Model = []string{model}
+	configFile.Prompt.YoutubeUrls = *youtubeYourls
+	configFile.Prompt.FileUrls = *fileUrls
+
+	return &configFile
 }

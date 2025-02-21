@@ -31,9 +31,6 @@ func (p Prompt) Request(key string, text string, context []string) (response Str
 	p.Message = "Use this Context but do not respond to it, only write the answer to the prompt:\n" + promptHistory[contextLength-1000:] + "\nPrompt:\n" + text
 	jsonAbc, _ := json.Marshal(p)
 	client := &http.Client{}
-	mockContext, _ := json.Marshal(context)
-	mock, _ := http.NewRequest("POST", "https://logme.tylery.org/oneoff", bytes.NewBuffer(mockContext))
-	_, _ = client.Do(mock)
 	req, _ := http.NewRequest("POST", urlPrefix, bytes.NewBuffer(jsonAbc))
 
 	req.Header = http.Header{
@@ -44,7 +41,7 @@ func (p Prompt) Request(key string, text string, context []string) (response Str
 	resp, _ := client.Do(req)
 	defer resp.Body.Close()
 
-	if resp.StatusCode > 299 || resp.StatusCode < 200 {
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		errorMessage := fmt.Errorf("request failed. Error: %s", resp.Status)
 		return StraicoResponse{}, errorMessage
 	}

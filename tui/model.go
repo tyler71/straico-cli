@@ -6,7 +6,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"straico-cli.tylery.com/m/v2/cmd"
-	p "straico-cli.tylery.com/m/v2/prompt"
 	"strings"
 )
 
@@ -27,7 +26,6 @@ type Model struct {
 	senderStyle   lipgloss.Style
 	err           error
 	config        *cmd.ConfigFile
-	prompt        p.Prompt
 }
 
 func NewModel(config *cmd.ConfigFile) Model {
@@ -51,10 +49,9 @@ func NewModel(config *cmd.ConfigFile) Model {
 	vp.SetContent(`Welcome to Straico Chat!
 Type a message and press Enter to send.
 
-Use ↑/↓ arrows or mouse wheel to scroll through chat history.`)
+Use ↑/↓ arrows to scroll through chat history.`)
 
 	// Enable mouse wheel scrolling
-	vp.MouseWheelEnabled = true
 
 	// Add a subtle style to indicate scrollable area with full border
 	vp.Style = lipgloss.NewStyle().
@@ -76,7 +73,6 @@ Use ↑/↓ arrows or mouse wheel to scroll through chat history.`)
 		senderStyle:   lipgloss.NewStyle().Foreground(lipgloss.Color("5")),
 		err:           nil,
 		config:        config,
-		prompt:        cmd.Config.Prompt,
 	}
 }
 
@@ -128,11 +124,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.viewport.GotoBottom()
 
 			return m, func() tea.Msg {
-				response, err := m.prompt.Request(m.config.Key, userMessage, m.promptHistory)
+				response, err := m.config.Prompt.Request(m.config.Key, userMessage, m.promptHistory)
 				if err != nil {
 					return LLMResponseMsg{err: err}
 				}
-				llmResponse := response.Data.Completions[m.prompt.Model[0]].Completion.Choices[0].Message.Content
+				llmResponse := response.Data.Completions[m.config.Prompt.Model[0]].Completion.Choices[0].Message.Content
 				return LLMResponseMsg{response: llmResponse}
 			}
 		}
