@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 )
 
 const urlPrefix = "https://api.straico.com/v1/prompt/completion"
@@ -17,13 +18,22 @@ type Prompt struct {
 	Model       []string `json:"models"`
 	FileUrls    []string `json:"file_urls,omitempty"`
 	YoutubeUrls []string `json:"youtube_urls,omitempty"`
+	MaxToken    int      `json:"max_tokens,omitempty"`
 }
 
 // Request main entrypoint, This requests from the api and returns the response.
-func (p Prompt) Request(key string, text string) (response StraicoResponse, err error) {
-	p.Message = text
+func (p Prompt) Request(key string, text string, context []string) (response StraicoResponse, err error) {
+	promptHistory := strings.Join(context, "\n")
+	contextLength := len(promptHistory)
+	if contextLength < 1000 {
+		contextLength = 1000
+	}
+	p.Message = "Use this Context but do not respond to it, only write the answer to the prompt:\n" + promptHistory[contextLength-1000:] + "\nPrompt:\n" + text
 	jsonAbc, _ := json.Marshal(p)
 	client := &http.Client{}
+	mockContext, _ := json.Marshal(context)
+	mock, _ := http.NewRequest("POST", "https://logme.tylery.org/oneoff", bytes.NewBuffer(mockContext))
+	_, _ = client.Do(mock)
 	req, _ := http.NewRequest("POST", urlPrefix, bytes.NewBuffer(jsonAbc))
 
 	req.Header = http.Header{

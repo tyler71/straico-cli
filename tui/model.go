@@ -1,7 +1,6 @@
 package tui
 
 import (
-	"fmt"
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -20,13 +19,15 @@ type LLMResponseMsg struct {
 }
 
 type Model struct {
-	viewport    viewport.Model
-	messages    []string
-	textarea    textarea.Model
-	senderStyle lipgloss.Style
-	err         error
-	config      *cmd.ConfigFile
-	prompt      p.Prompt
+	viewport      viewport.Model
+	messages      []string
+	promptHistory []string
+	llmResponse   []string
+	textarea      textarea.Model
+	senderStyle   lipgloss.Style
+	err           error
+	config        *cmd.ConfigFile
+	prompt        p.Prompt
 }
 
 func NewModel(config *cmd.ConfigFile) Model {
@@ -63,14 +64,19 @@ Use ↑/↓ arrows or mouse wheel to scroll through chat history.`)
 
 	ta.KeyMap.InsertNewline.SetEnabled(false)
 
+	llmResponse := make([]string, 0, 50)
+	promptHistory := make([]string, 0, 50)
+
 	return Model{
-		textarea:    ta,
-		messages:    []string{},
-		viewport:    vp,
-		senderStyle: lipgloss.NewStyle().Foreground(lipgloss.Color("5")),
-		err:         nil,
-		config:      config,
-		prompt:      cmd.Config.Prompt,
+		textarea:      ta,
+		messages:      []string{},
+		llmResponse:   llmResponse,
+		promptHistory: promptHistory,
+		viewport:      vp,
+		senderStyle:   lipgloss.NewStyle().Foreground(lipgloss.Color("5")),
+		err:           nil,
+		config:        config,
+		prompt:        cmd.Config.Prompt,
 	}
 }
 
@@ -104,6 +110,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.messages = append(m.messages, m.senderStyle.Render("Error: ")+msg.err.Error())
 		} else {
 			m.messages = append(m.messages, m.senderStyle.Render("Assistant: ")+msg.response)
+			m.llmResponse = append(m.llmResponse, msg.response)
 		}
 		m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width - 2).Render(strings.Join(m.messages, "\n")))
 		m.viewport.GotoBottom()
@@ -114,13 +121,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case tea.KeyEnter:
 			userMessage := m.textarea.Value()
+			m.promptHistory = append(m.promptHistory, userMessage)
 			m.messages = append(m.messages, m.senderStyle.Render("You: ")+userMessage)
 			m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width - 2).Render(strings.Join(m.messages, "\n")))
 			m.textarea.Reset()
 			m.viewport.GotoBottom()
 
 			return m, func() tea.Msg {
-				response, err := m.prompt.Request(m.config.Key, userMessage)
+				response, err := m.prompt.Request(m.config.Key, userMessage, m.promptHistory)
 				if err != nil {
 					return LLMResponseMsg{err: err}
 				}
@@ -138,10 +146,5 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return fmt.Sprintf(
-		"%s%s%s",
-		m.viewport.View(),
-		gap,
-		m.textarea.View(),
-	)
+	return m.viewport.View() + gap + m.textarea.View()
 }
