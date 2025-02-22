@@ -28,7 +28,11 @@ func (p Prompt) Request(key string, text string, context []string) (response Str
 	if contextLength < 1000 {
 		contextLength = 1000
 	}
-	p.Message = "Use this Context but do not respond to it, only write the answer to the prompt:\n" + promptHistory[contextLength-1000:] + "\nPrompt:\n" + text
+	if len(context) > 1 {
+		p.Message = "Use this Context but do not respond to it, only write the answer to the prompt:\n" + promptHistory[contextLength-1000:] + "\nPrompt:\n" + text
+	} else {
+		p.Message = text
+	}
 	jsonAbc, _ := json.Marshal(p)
 	client := &http.Client{}
 	req, _ := http.NewRequest("POST", urlPrefix, bytes.NewBuffer(jsonAbc))

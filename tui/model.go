@@ -6,6 +6,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"straico-cli.tylery.com/m/v2/cmd"
+	"strconv"
 	"strings"
 )
 
@@ -16,10 +17,15 @@ type LLMResponseMsg struct {
 	response string
 	err      error
 }
+type Messages []string
+
+func (m Messages) Render(width int) string {
+	return lipgloss.NewStyle().Width(width).Render(strings.Join(m, "\n"))
+}
 
 type Model struct {
 	viewport      viewport.Model
-	messages      []string
+	messages      Messages
 	promptHistory []string
 	llmResponse   []string
 	textarea      textarea.Model
@@ -49,9 +55,8 @@ func NewModel(config *cmd.ConfigFile) Model {
 	vp.SetContent(`Welcome to Straico Chat!
 Type a message and press Enter to send.
 
-Use ↑/↓ arrows to scroll through chat history.`)
 
-	// Enable mouse wheel scrolling
+Use ↑/↓ arrows to scroll through chat history.`)
 
 	// Add a subtle style to indicate scrollable area with full border
 	vp.Style = lipgloss.NewStyle().
@@ -61,12 +66,13 @@ Use ↑/↓ arrows to scroll through chat history.`)
 
 	ta.KeyMap.InsertNewline.SetEnabled(false)
 
-	llmResponse := make([]string, 0, 50)
-	promptHistory := make([]string, 0, 50)
+	messages := make(Messages, 0, 50)
+	llmResponse := make([]string, 0, 25)
+	promptHistory := make([]string, 0, 25)
 
 	return Model{
 		textarea:      ta,
-		messages:      []string{},
+		messages:      messages,
 		llmResponse:   llmResponse,
 		promptHistory: promptHistory,
 		viewport:      vp,
@@ -85,6 +91,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		tiCmd tea.Cmd
 		vpCmd tea.Cmd
 	)
+	m.textarea.Placeholder = "Ask the LLM... (" + m.config.Model + ")" + " " + "(%" + strconv.Itoa(int(m.viewport.ScrollPercent()*100)) + ")"
 
 	m.textarea, tiCmd = m.textarea.Update(msg)
 	m.viewport, vpCmd = m.viewport.Update(msg)
@@ -94,21 +101,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.viewport.Width = msg.Width
 		m.textarea.SetWidth(msg.Width)
 		// Leave more room for the chat history
-		m.viewport.Height = msg.Height - m.textarea.Height() - lipgloss.Height(gap) - 2 // -2 for viewport borders
+		m.viewport.Height = msg.Height - m.textarea.Height() - lipgloss.Height(gap) // -2 for viewport borders
 
-		if len(m.messages) > 0 {
-			m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width - 2).Render(strings.Join(m.messages, "\n"))) // -2 for viewport padding
+		if len(m.messages) > -1 {
+			m.viewport.SetContent(m.messages.Render(m.viewport.Width - 6)) // -2 for viewport padding
 		}
-		m.viewport.GotoBottom()
 
 	case LLMResponseMsg:
 		if msg.err != nil {
 			m.messages = append(m.messages, m.senderStyle.Render("Error: ")+msg.err.Error())
 		} else {
-			m.messages = append(m.messages, m.senderStyle.Render("Assistant: ")+msg.response)
+			m.messages = append(m.messages, m.senderStyle.Render("LLM: ")+msg.response)
 			m.llmResponse = append(m.llmResponse, msg.response)
 		}
-		m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width - 2).Render(strings.Join(m.messages, "\n")))
+		m.viewport.SetContent(m.messages.Render(m.viewport.Width - 6))
 		m.viewport.GotoBottom()
 
 	case tea.KeyMsg:
@@ -119,7 +125,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			userMessage := m.textarea.Value()
 			m.promptHistory = append(m.promptHistory, userMessage)
 			m.messages = append(m.messages, m.senderStyle.Render("You: ")+userMessage)
-			m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width - 2).Render(strings.Join(m.messages, "\n")))
+			m.viewport.SetContent(m.messages.Render(m.viewport.Width))
 			m.textarea.Reset()
 			m.viewport.GotoBottom()
 
