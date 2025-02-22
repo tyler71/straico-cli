@@ -60,9 +60,8 @@ Use ↑/↓ arrows to scroll through chat history.`)
 
 	// Add a subtle style to indicate scrollable area with full border
 	vp.Style = lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("240")).
-		Padding(0, 1)
+		//Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("240"))
 
 	ta.KeyMap.InsertNewline.SetEnabled(false)
 
@@ -101,7 +100,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.viewport.Width = msg.Width
 		m.textarea.SetWidth(msg.Width)
 		// Leave more room for the chat history
-		m.viewport.Height = msg.Height - m.textarea.Height() - lipgloss.Height(gap) // -2 for viewport borders
+		_, h := m.viewport.Style.GetFrameSize()
+		m.viewport.Height = msg.Height - m.textarea.Height() - h
 
 		if len(m.messages) > -1 {
 			m.viewport.SetContent(m.messages.Render(m.viewport.Width - 6)) // -2 for viewport padding
