@@ -21,15 +21,17 @@ type Prompt struct {
 	MaxToken    int      `json:"max_tokens,omitempty"`
 }
 
+const MaxContextLength = 25
+
 // Request main entrypoint, This requests from the api and returns the response.
 func (p Prompt) Request(key string, text string, context []string) (response StraicoResponse, err error) {
 	promptHistory := strings.Join(context, "\n")
 	contextLength := len(promptHistory)
-	if contextLength < 1000 {
-		contextLength = 1000
+	if contextLength < MaxContextLength {
+		contextLength = MaxContextLength
 	}
 	if len(context) > 1 {
-		p.Message = "Use this Context but do not respond to it, only write the answer to the prompt:\n" + promptHistory[contextLength-1000:] + "\nPrompt:\n" + text
+		p.Message = "Use this Context but do not respond to it, only write the answer to the prompt:\n" + promptHistory[contextLength-MaxContextLength:] + "\nPrompt:\n" + text
 	} else {
 		p.Message = text
 	}

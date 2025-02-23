@@ -23,15 +23,10 @@ func (m Messages) Render(width int) string {
 	return lipgloss.NewStyle().Width(width).Render(strings.Join(m, "\n"))
 }
 
-type Conversation struct {
-	promptHistory []string
-	messages      Messages
-}
-
 type Model struct {
 	viewport      viewport.Model
 	convSelection int
-	Conversations map[int]*Conversation
+	Conversations Conversations
 	textarea      textarea.Model
 	senderStyle   lipgloss.Style
 	err           error
@@ -64,24 +59,20 @@ func NewModel(config *cmd.ConfigFile) Model {
 
 	ta.KeyMap.InsertNewline.SetEnabled(false)
 
-	conversations := make(map[int]*Conversation, 9)
+	conversations := make(Conversations, 9)
 	for i := 0; i < 9; i++ {
-		conversations[i] = &Conversation{
-			promptHistory: make([]string, 0, 25),
-			messages:      make(Messages, 0, 50),
-		}
+		conversations.InitConversation(i)
 	}
+	conversations.LoadConversations()
 
 	return Model{
 		textarea:      ta,
 		convSelection: 0,
 		Conversations: conversations,
-		//messages:      messages,
-		//promptHistory: promptHistory,
-		viewport:    vp,
-		senderStyle: lipgloss.NewStyle().Foreground(lipgloss.Color("5")),
-		err:         nil,
-		config:      config,
+		viewport:      vp,
+		senderStyle:   lipgloss.NewStyle().Foreground(lipgloss.Color("5")),
+		err:           nil,
+		config:        config,
 	}
 }
 
@@ -95,9 +86,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		vpCmd tea.Cmd
 	)
 
-	c := m.Conversations[m.convSelection]
+	c := &m.Conversations[m.convSelection]
 
-	if len(c.messages) == 0 {
+	if len(c.Messages) == 0 {
 		m.viewport.SetContent(`Welcome to Straico Cli!
 Type a message and press Enter to send.
 
@@ -120,43 +111,51 @@ Use ↑/↓ arrows to scroll through chat history.`)
 		h := m.viewport.Style.GetVerticalFrameSize()
 		m.viewport.Height = msg.Height - m.textarea.Height() - h - 1
 
-		if len(c.messages) > -1 {
-			m.viewport.SetContent(c.messages.Render(m.viewport.Width - 6))
+		if len(c.Messages) > -1 {
+			m.viewport.SetContent(c.Messages.Render(m.viewport.Width - 6))
 		}
 
 	case LLMResponseMsg:
 		if msg.err != nil {
-			c.messages = append(c.messages, m.senderStyle.Render("Error: ")+msg.err.Error())
+			c.Messages = append(c.Messages, m.senderStyle.Render("Error: ")+msg.err.Error())
 		} else {
-			c.messages = append(c.messages, m.senderStyle.Render("LLM: ")+msg.response)
+			c.Messages = append(c.Messages, m.senderStyle.Render("LLM: ")+msg.response)
 		}
-		m.viewport.SetContent(c.messages.Render(m.viewport.Width - 6))
+		m.viewport.SetContent(c.Messages.Render(m.viewport.Width - 6))
 		m.viewport.GotoBottom()
+		err := m.Conversations.SaveConversations()
+		if err != nil {
+			m.err = err
+			return m, nil
+		}
 
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyCtrlC, tea.KeyEsc:
 			return m, tea.Quit
-		case tea.KeyF1, tea.KeyF2, tea.KeyF3, tea.KeyF4, tea.KeyF5, tea.KeyF6, tea.KeyF7, tea.KeyF8, tea.KeyF9:
-			m.convSelection = int(tea.KeyF1 - msg.Type)
-			c = m.Conversations[m.convSelection]
-			m.viewport.SetContent(c.messages.Render(m.viewport.Width - 6))
 		case tea.KeyEnter:
 			userMessage := m.textarea.Value()
-			c.promptHistory = append(c.promptHistory, userMessage)
-			c.messages = append(c.messages, m.senderStyle.Render("You: ")+userMessage)
-			m.viewport.SetContent(c.messages.Render(m.viewport.Width - 6))
+			c.PromptHistory = append(c.PromptHistory, userMessage)
+			c.Messages = append(c.Messages, m.senderStyle.Render("You: ")+userMessage)
+			m.viewport.SetContent(c.Messages.Render(m.viewport.Width - 6))
 			m.textarea.Reset()
 			m.viewport.GotoBottom()
 
 			return m, func() tea.Msg {
-				response, err := m.config.Prompt.Request(m.config.Key, userMessage, c.promptHistory)
+				response, err := m.config.Prompt.Request(m.config.Key, userMessage, c.PromptHistory)
 				if err != nil {
 					return LLMResponseMsg{err: err}
 				}
 				llmResponse := response.Data.Completions[m.config.Prompt.Model[0]].Completion.Choices[0].Message.Content
 				return LLMResponseMsg{response: llmResponse}
 			}
+		case tea.KeyF1, tea.KeyF2, tea.KeyF3, tea.KeyF4, tea.KeyF5, tea.KeyF6, tea.KeyF7, tea.KeyF8, tea.KeyF9:
+			m.convSelection = int(tea.KeyF1 - msg.Type)
+			c = &m.Conversations[m.convSelection]
+			m.viewport.SetContent(c.Messages.Render(m.viewport.Width - 6))
+		case tea.KeyF12:
+			m.Conversations.InitConversation(m.convSelection)
+			m.Conversations.SaveConversations()
 		}
 
 	case error:
