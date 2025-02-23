@@ -23,11 +23,15 @@ func (m Messages) Render(width int) string {
 	return lipgloss.NewStyle().Width(width).Render(strings.Join(m, "\n"))
 }
 
+type Conversation struct {
+	promptHistory []string
+	messages      Messages
+}
+
 type Model struct {
 	viewport      viewport.Model
-	messages      Messages
-	promptHistory []string
-	llmResponse   []string
+	convSelection int
+	Conversations map[int]*Conversation
 	textarea      textarea.Model
 	senderStyle   lipgloss.Style
 	err           error
@@ -36,7 +40,7 @@ type Model struct {
 
 func NewModel(config *cmd.ConfigFile) Model {
 	ta := textarea.New()
-	ta.Placeholder = "Ask the LLM... (" + config.Model + ")"
+	ta.Placeholder = "Ask the LLM... (" + config.Model + ")" + " "
 	ta.Focus()
 
 	ta.Prompt = "┃ "
@@ -60,19 +64,24 @@ func NewModel(config *cmd.ConfigFile) Model {
 
 	ta.KeyMap.InsertNewline.SetEnabled(false)
 
-	messages := make(Messages, 0, 50)
-	llmResponse := make([]string, 0, 25)
-	promptHistory := make([]string, 0, 25)
+	conversations := make(map[int]*Conversation, 9)
+	for i := 0; i < 9; i++ {
+		conversations[i] = &Conversation{
+			promptHistory: make([]string, 0, 25),
+			messages:      make(Messages, 0, 50),
+		}
+	}
 
 	return Model{
 		textarea:      ta,
-		messages:      messages,
-		llmResponse:   llmResponse,
-		promptHistory: promptHistory,
-		viewport:      vp,
-		senderStyle:   lipgloss.NewStyle().Foreground(lipgloss.Color("5")),
-		err:           nil,
-		config:        config,
+		convSelection: 0,
+		Conversations: conversations,
+		//messages:      messages,
+		//promptHistory: promptHistory,
+		viewport:    vp,
+		senderStyle: lipgloss.NewStyle().Foreground(lipgloss.Color("5")),
+		err:         nil,
+		config:      config,
 	}
 }
 
@@ -86,7 +95,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		vpCmd tea.Cmd
 	)
 
-	if len(m.messages) == 0 {
+	c := m.Conversations[m.convSelection]
+
+	if len(c.messages) == 0 {
 		m.viewport.SetContent(`Welcome to Straico Cli!
 Type a message and press Enter to send.
 
@@ -94,7 +105,9 @@ Type a message and press Enter to send.
 Use ↑/↓ arrows to scroll through chat history.`)
 	}
 
-	m.textarea.Placeholder = "Ask the LLM... (" + m.config.Model + ")" + " " + "(%" + strconv.Itoa(int(m.viewport.ScrollPercent()*100)) + ")"
+	m.textarea.Placeholder = "Ask the LLM... (" + m.config.Model + ")" +
+		" " + "(%" + strconv.Itoa(int(m.viewport.ScrollPercent()*100)) + ")" +
+		" " + "(" + strconv.Itoa(m.convSelection+1) + ")"
 
 	m.textarea, tiCmd = m.textarea.Update(msg)
 	m.viewport, vpCmd = m.viewport.Update(msg)
@@ -107,34 +120,37 @@ Use ↑/↓ arrows to scroll through chat history.`)
 		h := m.viewport.Style.GetVerticalFrameSize()
 		m.viewport.Height = msg.Height - m.textarea.Height() - h - 1
 
-		if len(m.messages) > -1 {
-			m.viewport.SetContent(m.messages.Render(m.viewport.Width - 6))
+		if len(c.messages) > -1 {
+			m.viewport.SetContent(c.messages.Render(m.viewport.Width - 6))
 		}
 
 	case LLMResponseMsg:
 		if msg.err != nil {
-			m.messages = append(m.messages, m.senderStyle.Render("Error: ")+msg.err.Error())
+			c.messages = append(c.messages, m.senderStyle.Render("Error: ")+msg.err.Error())
 		} else {
-			m.messages = append(m.messages, m.senderStyle.Render("LLM: ")+msg.response)
-			m.llmResponse = append(m.llmResponse, msg.response)
+			c.messages = append(c.messages, m.senderStyle.Render("LLM: ")+msg.response)
 		}
-		m.viewport.SetContent(m.messages.Render(m.viewport.Width - 6))
+		m.viewport.SetContent(c.messages.Render(m.viewport.Width - 6))
 		m.viewport.GotoBottom()
 
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyCtrlC, tea.KeyEsc:
 			return m, tea.Quit
+		case tea.KeyF1, tea.KeyF2, tea.KeyF3, tea.KeyF4, tea.KeyF5, tea.KeyF6, tea.KeyF7, tea.KeyF8, tea.KeyF9:
+			m.convSelection = int(tea.KeyF1 - msg.Type)
+			c = m.Conversations[m.convSelection]
+			m.viewport.SetContent(c.messages.Render(m.viewport.Width - 6))
 		case tea.KeyEnter:
 			userMessage := m.textarea.Value()
-			m.promptHistory = append(m.promptHistory, userMessage)
-			m.messages = append(m.messages, m.senderStyle.Render("You: ")+userMessage)
-			m.viewport.SetContent(m.messages.Render(m.viewport.Width - 6))
+			c.promptHistory = append(c.promptHistory, userMessage)
+			c.messages = append(c.messages, m.senderStyle.Render("You: ")+userMessage)
+			m.viewport.SetContent(c.messages.Render(m.viewport.Width - 6))
 			m.textarea.Reset()
 			m.viewport.GotoBottom()
 
 			return m, func() tea.Msg {
-				response, err := m.config.Prompt.Request(m.config.Key, userMessage, m.promptHistory)
+				response, err := m.config.Prompt.Request(m.config.Key, userMessage, c.promptHistory)
 				if err != nil {
 					return LLMResponseMsg{err: err}
 				}
