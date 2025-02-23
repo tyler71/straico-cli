@@ -7,7 +7,7 @@ require github.com/spf13/pflag v1.0.6
 require (
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
-	github.com/charmbracelet/bubbles v0.20.0 // indirect
+	github.com/charmbracelet/bubbles v0.20.1-0.20250121223103-7ab08fb438e4 // indirect
 	github.com/charmbracelet/bubbletea v1.3.3 // indirect
 	github.com/charmbracelet/lipgloss v1.0.0 // indirect
 	github.com/charmbracelet/x/ansi v0.8.0 // indirect

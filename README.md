@@ -13,13 +13,14 @@ Usage of straico-cli:
       --youtube-url strings   --youtube-url link1 --youtube-url link2
 ```
 
-```bash
-straico-cli 'What is the history behind the French Quarter?'
-```
-
 ### Save your [API key](https://documenter.getpostman.com/view/5900072/2s9YyzddrR)
 ```bash
 straico-cli --save-key Xl-YourAPIKey123
+```
+
+### Save your model
+```bash
+straico-cli --save-model -m "anthropic/claude-3-haiku:beta" 
 ```
 
 ## Resources

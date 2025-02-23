@@ -19,7 +19,7 @@ func main() {
 		tea.WithMouseCellMotion(), // Capture mouse events
 	)
 
-	if err, _ := p.Run(); err != nil {
+	if _, err := p.Run(); err != nil {
 		log.Fatalln("Error running program:", err)
 	}
 }

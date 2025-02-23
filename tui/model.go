@@ -52,15 +52,10 @@ func NewModel(config *cmd.ConfigFile) Model {
 
 	// Initialize viewport with scrolling enabled
 	vp := viewport.New(30, 5)
-	vp.SetContent(`Welcome to Straico Chat!
-Type a message and press Enter to send.
-
-
-Use ↑/↓ arrows to scroll through chat history.`)
 
 	// Add a subtle style to indicate scrollable area with full border
 	vp.Style = lipgloss.NewStyle().
-		//Border(lipgloss.RoundedBorder()).
+		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color("240"))
 
 	ta.KeyMap.InsertNewline.SetEnabled(false)
@@ -90,6 +85,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		tiCmd tea.Cmd
 		vpCmd tea.Cmd
 	)
+
+	if len(m.messages) == 0 {
+		m.viewport.SetContent(`Welcome to Straico Cli!
+Type a message and press Enter to send.
+
+
+Use ↑/↓ arrows to scroll through chat history.`)
+	}
+
 	m.textarea.Placeholder = "Ask the LLM... (" + m.config.Model + ")" + " " + "(%" + strconv.Itoa(int(m.viewport.ScrollPercent()*100)) + ")"
 
 	m.textarea, tiCmd = m.textarea.Update(msg)
@@ -100,11 +104,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.viewport.Width = msg.Width
 		m.textarea.SetWidth(msg.Width)
 		// Leave more room for the chat history
-		_, h := m.viewport.Style.GetFrameSize()
-		m.viewport.Height = msg.Height - m.textarea.Height() - h
+		h := m.viewport.Style.GetVerticalFrameSize()
+		m.viewport.Height = msg.Height - m.textarea.Height() - h - 1
 
 		if len(m.messages) > -1 {
-			m.viewport.SetContent(m.messages.Render(m.viewport.Width - 6)) // -2 for viewport padding
+			m.viewport.SetContent(m.messages.Render(m.viewport.Width - 6))
 		}
 
 	case LLMResponseMsg:
@@ -125,7 +129,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			userMessage := m.textarea.Value()
 			m.promptHistory = append(m.promptHistory, userMessage)
 			m.messages = append(m.messages, m.senderStyle.Render("You: ")+userMessage)
-			m.viewport.SetContent(m.messages.Render(m.viewport.Width))
+			m.viewport.SetContent(m.messages.Render(m.viewport.Width - 6))
 			m.textarea.Reset()
 			m.viewport.GotoBottom()
 

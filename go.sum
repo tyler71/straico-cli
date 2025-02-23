@@ -4,6 +4,10 @@ github.com/aymanbagabas/go-osc52/v2 v2.0.1 h1:HwpRHbFMcZLEVr42D4p7XBqjyuxQH5SMiE
 github.com/aymanbagabas/go-osc52/v2 v2.0.1/go.mod h1:uYgXzlJ7ZpABp8OJ+exZzJJhRNQ2ASbcXHWsFqH8hp8=
 github.com/charmbracelet/bubbles v0.20.0 h1:jSZu6qD8cRQ6k9OMfR1WlM+ruM8fkPWkHvQWD9LIutE=
 github.com/charmbracelet/bubbles v0.20.0/go.mod h1:39slydyswPy+uVOHZ5x/GjwVAFkCsV8IIVy+4MhzwwU=
+github.com/charmbracelet/bubbles v0.20.1-0.20250121223103-7ab08fb438e4 h1:aYDdxpgt1qbu/e23efSG85Z0IA7ynWnD1N0LXjutoGs=
+github.com/charmbracelet/bubbles v0.20.1-0.20250121223103-7ab08fb438e4/go.mod h1:gTx+8qjByoZp1DukG5AfSM35VxlQIyJH16+Z8lHr0tg=
+github.com/charmbracelet/bubbles v0.20.1-0.20250213142908-7a6b190840c8 h1:9OTAKBRKVMAqqS+k3jY4lcK4hjjDQg1tL4AV3Z72jbc=
+github.com/charmbracelet/bubbles v0.20.1-0.20250213142908-7a6b190840c8/go.mod h1:gTx+8qjByoZp1DukG5AfSM35VxlQIyJH16+Z8lHr0tg=
 github.com/charmbracelet/bubbletea v1.3.3 h1:WpU6fCY0J2vDWM3zfS3vIDi/ULq3SYphZhkAGGvmEUY=
 github.com/charmbracelet/bubbletea v1.3.3/go.mod h1:dtcUCyCGEX3g9tosuYiut3MXgY/Jsv9nKVdibKKRRXo=
 github.com/charmbracelet/lipgloss v1.0.0 h1:O7VkGDvqEdGi93X+DeqsQ7PKHDgtQfF8j8/O2qFMQNg=
