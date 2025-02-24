@@ -13,6 +13,9 @@ Once in straico-cli, the text placeholder will tell you the current LLM model,
 
 To switch between buffers, push `F1` - `F8`. Pushing `F12` will erase the current buffer.
 
+To _move_ your buffer, push `Shift + Right Arrow` or `Shift + Left Arrow`.
+For example, if you have a buffer at location `1` and want to move it to `2`, press `F1`, `Shift + Right Arrow`
+
 ```bash
 Usage of straico-cli:
       --file-url strings      --file-url link1 --file-url link2

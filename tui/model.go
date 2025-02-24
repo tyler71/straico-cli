@@ -85,14 +85,6 @@ func (m Model) Init() tea.Cmd {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	c := &m.Conversations[m.convSelection]
 
-	if len(c.Messages) == 0 {
-		m.viewport.SetContent(`Welcome to Straico Cli!
-Type a message and press Enter to send.
-
-
-Use ↑/↓ arrows to scroll through chat history.`)
-	}
-
 	m.textarea, _ = m.textarea.Update(msg)
 
 	switch msg := msg.(type) {
@@ -159,6 +151,24 @@ Use ↑/↓ arrows to scroll through chat history.`)
 			m.convSelection = int(tea.KeyF1 - msg.Type)
 			c = &m.Conversations[m.convSelection]
 			m.viewport.SetContent(c.Messages.Render(m.viewport.Width - 6))
+		case tea.KeyShiftLeft:
+			if m.convSelection-1 >= 0 {
+				t := m.Conversations[m.convSelection-1]
+				m.Conversations[m.convSelection-1] = m.Conversations[m.convSelection]
+				m.Conversations[m.convSelection] = t
+				m.convSelection--
+				c = &m.Conversations[m.convSelection]
+				m.viewport.SetContent(c.Messages.Render(m.viewport.Width - 6))
+			}
+		case tea.KeyShiftRight:
+			if m.convSelection+1 < len(m.Conversations) {
+				t := m.Conversations[m.convSelection+1]
+				m.Conversations[m.convSelection+1] = m.Conversations[m.convSelection]
+				m.Conversations[m.convSelection] = t
+				m.convSelection++
+				c = &m.Conversations[m.convSelection]
+				m.viewport.SetContent(c.Messages.Render(m.viewport.Width - 6))
+			}
 		case tea.KeyF12:
 			m.Conversations.InitConversation(m.convSelection)
 			m.Conversations.SaveConversations()
@@ -178,6 +188,13 @@ Use ↑/↓ arrows to scroll through chat history.`)
 	m.textarea.Placeholder = "Ask the LLM... (" + m.config.Model + ")" +
 		" " + "(%" + strconv.Itoa(int(m.viewport.ScrollPercent()*100)) + ")" +
 		" " + "(" + strconv.Itoa(m.convSelection+1) + ")"
+	if len(c.Messages) == 0 {
+		m.viewport.SetContent(`Welcome to Straico Cli!
+Type a message and press Enter to send.
+
+
+Use ↑/↓ arrows to scroll through chat history.`)
+	}
 
 	return m, nil
 	//return m, tea.Batch(tiCmd, vpCmd)
