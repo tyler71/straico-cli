@@ -133,6 +133,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.viewport, _ = m.viewport.Update(msg)
 		case tea.KeyEnter:
 			userMessage := m.textarea.Value()
+			if strings.Trim(userMessage, " ") == "" {
+				m.textarea.Reset()
+				return m, nil
+			}
 			c.PromptHistory = append(c.PromptHistory, userMessage)
 			c.Messages = append(c.Messages, m.senderStyle.Render("You: ")+userMessage)
 			m.viewport.SetContent(c.Messages.Render(m.viewport.Width - 6))
@@ -151,20 +155,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.convSelection = int(tea.KeyF1 - msg.Type)
 			c = &m.Conversations[m.convSelection]
 			m.viewport.SetContent(c.Messages.Render(m.viewport.Width - 6))
+		//	ShiftLeft and ShiftRight used to
 		case tea.KeyShiftLeft:
 			if m.convSelection-1 >= 0 {
-				t := m.Conversations[m.convSelection-1]
+				t := &m.Conversations[m.convSelection-1]
 				m.Conversations[m.convSelection-1] = m.Conversations[m.convSelection]
-				m.Conversations[m.convSelection] = t
+				m.Conversations[m.convSelection] = *t
 				m.convSelection--
 				c = &m.Conversations[m.convSelection]
 				m.viewport.SetContent(c.Messages.Render(m.viewport.Width - 6))
 			}
 		case tea.KeyShiftRight:
 			if m.convSelection+1 < len(m.Conversations) {
-				t := m.Conversations[m.convSelection+1]
+				t := &m.Conversations[m.convSelection+1]
 				m.Conversations[m.convSelection+1] = m.Conversations[m.convSelection]
-				m.Conversations[m.convSelection] = t
+				m.Conversations[m.convSelection] = *t
 				m.convSelection++
 				c = &m.Conversations[m.convSelection]
 				m.viewport.SetContent(c.Messages.Render(m.viewport.Width - 6))
