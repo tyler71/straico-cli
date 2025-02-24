@@ -3,6 +3,16 @@
 
 ## Usage
 
+Once in straico-cli, the text placeholder will tell you the current LLM model, 
+ the scroll percentage and the current buffer.
+```text
+┃ Ask the LLM... (openai/gpt-4o-mini) (%100) (1)
+┃
+┃
+```
+
+To switch between buffers, push `F1` - `F8`. Pushing `F12` will erase the current buffer.
+
 ```bash
 Usage of straico-cli:
       --file-url strings      --file-url link1 --file-url link2
