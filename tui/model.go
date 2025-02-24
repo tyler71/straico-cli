@@ -65,6 +65,8 @@ func NewModel(config *cmd.ConfigFile) Model {
 	}
 	conversations.LoadConversations()
 
+	//movementKeys := make(map[int]interface{})
+
 	return Model{
 		textarea:      ta,
 		convSelection: 0,
@@ -81,11 +83,6 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var (
-		tiCmd tea.Cmd
-		vpCmd tea.Cmd
-	)
-
 	c := &m.Conversations[m.convSelection]
 
 	if len(c.Messages) == 0 {
@@ -100,8 +97,7 @@ Use ↑/↓ arrows to scroll through chat history.`)
 		" " + "(%" + strconv.Itoa(int(m.viewport.ScrollPercent()*100)) + ")" +
 		" " + "(" + strconv.Itoa(m.convSelection+1) + ")"
 
-	m.textarea, tiCmd = m.textarea.Update(msg)
-	m.viewport, vpCmd = m.viewport.Update(msg)
+	m.textarea, _ = m.textarea.Update(msg)
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -133,6 +129,8 @@ Use ↑/↓ arrows to scroll through chat history.`)
 		switch msg.Type {
 		case tea.KeyCtrlC, tea.KeyEsc:
 			return m, tea.Quit
+		case tea.KeyUp, tea.KeyDown, tea.KeyPgUp, tea.KeyPgDown:
+			m.viewport, _ = m.viewport.Update(msg)
 		case tea.KeyEnter:
 			userMessage := m.textarea.Value()
 			c.PromptHistory = append(c.PromptHistory, userMessage)
@@ -156,14 +154,21 @@ Use ↑/↓ arrows to scroll through chat history.`)
 		case tea.KeyF12:
 			m.Conversations.InitConversation(m.convSelection)
 			m.Conversations.SaveConversations()
+		default:
+			var command tea.Cmd
+			//m.textarea, command = m.textarea.Update(msg)
+			return m, command
 		}
 
+	default:
+		return m, nil
 	case error:
 		m.err = msg
 		return m, nil
 	}
 
-	return m, tea.Batch(tiCmd, vpCmd)
+	return m, nil
+	//return m, tea.Batch(tiCmd, vpCmd)
 }
 
 func (m Model) View() string {

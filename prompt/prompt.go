@@ -31,7 +31,11 @@ func (p Prompt) Request(key string, text string, context []string) (response Str
 		contextLength = MaxContextLength
 	}
 	if len(context) > 1 {
-		p.Message = "Use this Context but do not respond to it, only write the answer to the prompt:\n" + promptHistory[contextLength-MaxContextLength:] + "\nPrompt:\n" + text
+		if contextLength > 1000 {
+			p.Message = "Answer the question using the context below.\n" + promptHistory[contextLength-1000:] + "\nQuestion:" + text + "\nAnswer:"
+		} else {
+			p.Message = "Answer the question using the context below.\n" + promptHistory + "\nQuestion:" + text + "\nAnswer:"
+		}
 	} else {
 		p.Message = text
 	}
