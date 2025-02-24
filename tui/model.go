@@ -93,10 +93,6 @@ Type a message and press Enter to send.
 Use ↑/↓ arrows to scroll through chat history.`)
 	}
 
-	m.textarea.Placeholder = "Ask the LLM... (" + m.config.Model + ")" +
-		" " + "(%" + strconv.Itoa(int(m.viewport.ScrollPercent()*100)) + ")" +
-		" " + "(" + strconv.Itoa(m.convSelection+1) + ")"
-
 	m.textarea, _ = m.textarea.Update(msg)
 
 	switch msg := msg.(type) {
@@ -178,6 +174,10 @@ Use ↑/↓ arrows to scroll through chat history.`)
 		m.err = msg
 		return m, nil
 	}
+
+	m.textarea.Placeholder = "Ask the LLM... (" + m.config.Model + ")" +
+		" " + "(%" + strconv.Itoa(int(m.viewport.ScrollPercent()*100)) + ")" +
+		" " + "(" + strconv.Itoa(m.convSelection+1) + ")"
 
 	return m, nil
 	//return m, tea.Batch(tiCmd, vpCmd)
