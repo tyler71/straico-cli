@@ -131,6 +131,12 @@ Use ↑/↓ arrows to scroll through chat history.`)
 			return m, tea.Quit
 		case tea.KeyUp, tea.KeyDown, tea.KeyPgUp, tea.KeyPgDown:
 			m.viewport, _ = m.viewport.Update(msg)
+		case tea.KeyEnd:
+			m.viewport.GotoBottom()
+			m.viewport, _ = m.viewport.Update(msg)
+		case tea.KeyHome:
+			m.viewport.GotoTop()
+			m.viewport, _ = m.viewport.Update(msg)
 		case tea.KeyEnter:
 			userMessage := m.textarea.Value()
 			c.PromptHistory = append(c.PromptHistory, userMessage)
