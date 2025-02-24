@@ -125,6 +125,12 @@ Use ↑/↓ arrows to scroll through chat history.`)
 			return m, nil
 		}
 
+	case tea.MouseMsg:
+		switch msg.Button {
+		case tea.MouseButtonWheelDown, tea.MouseButtonWheelUp:
+			m.viewport, _ = m.viewport.Update(msg)
+		}
+
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyCtrlC, tea.KeyEsc:
