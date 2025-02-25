@@ -11,7 +11,7 @@ import (
 
 const urlPrefix = "https://api.straico.com/v1/prompt/completion"
 
-//const urlPrefix = "http://localhost:3003/v1/prompt/completion"
+//const urlPrefix = "http://localhost:3002/v1/prompt/completion"
 
 type Prompt struct {
 	Message     string   `json:"message"`
