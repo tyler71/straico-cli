@@ -25,5 +25,7 @@ func main() {
 	if _, err := p.Run(); err != nil {
 		log.Fatalln("Error running program:", err)
 	}
-	os.Stdout.Write([]byte(strconv.FormatFloat(state.CoinUsage, 'f', 2, 64) + " coins used during session.\n"))
+	if state.CoinUsage > 0 {
+		os.Stdout.Write([]byte(strconv.FormatFloat(state.CoinUsage, 'f', 2, 64) + " coins used during session.\n"))
+	}
 }

@@ -3,10 +3,13 @@
 
 ## Usage
 
-Once in straico-cli, the text placeholder will tell you the current LLM model, 
- the scroll percentage and the current buffer.
+Once in straico-cli, the text placeholder will tell you:
+- The current LLM model, 
+- Scroll percentage 
+- Current buffer.
+- Session coin usage
 ```text
-┃ Ask the LLM... (openai/gpt-4o-mini) (%100) (1)
+┃ Ask the LLM... (openai/gpt-4o-mini) (%100) (1) (1.23)
 ┃
 ┃
 ```
