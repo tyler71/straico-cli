@@ -149,18 +149,18 @@ func (s *State) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		//	ShiftLeft and ShiftRight used to
 		case tea.KeyShiftLeft:
 			if s.ConvSelection-1 >= 0 {
-				t := &s.Conversations[s.ConvSelection-1]
+				t := s.Conversations[s.ConvSelection-1]
 				s.Conversations[s.ConvSelection-1] = s.Conversations[s.ConvSelection]
-				s.Conversations[s.ConvSelection] = *t
+				s.Conversations[s.ConvSelection] = t
 				s.ConvSelection--
 				c = &s.Conversations[s.ConvSelection]
 				s.Viewport.SetContent(c.Messages.Render(s.Viewport.Width - 6))
 			}
 		case tea.KeyShiftRight:
 			if s.ConvSelection+1 < len(s.Conversations) {
-				t := &s.Conversations[s.ConvSelection+1]
+				t := s.Conversations[s.ConvSelection+1]
 				s.Conversations[s.ConvSelection+1] = s.Conversations[s.ConvSelection]
-				s.Conversations[s.ConvSelection] = *t
+				s.Conversations[s.ConvSelection] = t
 				s.ConvSelection++
 				c = &s.Conversations[s.ConvSelection]
 				s.Viewport.SetContent(c.Messages.Render(s.Viewport.Width - 6))
