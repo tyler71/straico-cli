@@ -1,5 +1,6 @@
 .idea/
 straico-cli
 *.swp
+.coverage.out
 
 build/
