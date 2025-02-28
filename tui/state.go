@@ -4,7 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/viewport"
 	"github.com/charmbracelet/lipgloss"
-	"straico-cli.tylery.com/m/v2/cmd"
+	"github.com/tyler71/straico-cli/m/v0/cmd"
 )
 
 type State struct {

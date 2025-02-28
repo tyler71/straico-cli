@@ -1,4 +1,4 @@
-module straico-cli.tylery.com/m/v2
+module github.com/tyler71/straico-cli/m/v0
 
 go 1.23.1
 

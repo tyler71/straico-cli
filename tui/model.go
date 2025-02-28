@@ -5,7 +5,7 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"straico-cli.tylery.com/m/v2/cmd"
+	"github.com/tyler71/straico-cli/m/v0/cmd"
 	"strconv"
 	"strings"
 )
@@ -95,7 +95,8 @@ func (s *State) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			s.CoinUsage += msg.coinUsage
 		}
 		s.Viewport.SetContent(c.Messages.Render(s.Viewport.Width - 6))
-		s.Viewport.GotoBottom()
+		s.Viewport.HalfViewDown()
+		//s.Viewport.GotoBottom()
 		err := s.Conversations.SaveConversations()
 		if err != nil {
 			s.Err = err

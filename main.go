@@ -5,10 +5,10 @@ package main
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/tyler71/straico-cli/m/v0/cmd"
+	"github.com/tyler71/straico-cli/m/v0/tui"
 	"log"
 	"os"
-	"straico-cli.tylery.com/m/v2/cmd"
-	"straico-cli.tylery.com/m/v2/tui"
 	"strconv"
 )
 

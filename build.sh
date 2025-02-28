@@ -1,7 +1,7 @@
 #!/bin/bash
 
 app_name="straico-cli"
-module_name="straico-cli.tylery.com/m/v2"
+module_name="github.com/tyler71/straico-cli/m/v0"
 
 if [ -n "$1" ];
 then
