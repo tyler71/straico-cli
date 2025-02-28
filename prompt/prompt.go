@@ -48,7 +48,10 @@ func (p Prompt) Request(key string, text string, context []string) (response Str
 		"Content-Type":  []string{"application/json"},
 		"Accept":        []string{"application/json"},
 	}
-	resp, _ := client.Do(req)
+	resp, err := client.Do(req)
+	if err != nil {
+		return StraicoResponse{}, err
+	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {

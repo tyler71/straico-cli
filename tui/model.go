@@ -95,7 +95,9 @@ func (s *State) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			s.CoinUsage += msg.coinUsage
 		}
 		s.Viewport.SetContent(c.Messages.Render(s.Viewport.Width - 6))
-		s.Viewport.HalfViewDown()
+		if len(c.PromptHistory) > 1 {
+			s.Viewport.HalfViewDown()
+		}
 		//s.Viewport.GotoBottom()
 		err := s.Conversations.SaveConversations()
 		if err != nil {
