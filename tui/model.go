@@ -133,6 +133,7 @@ func (s *State) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			s.Viewport.SetContent(c.Messages.Render(s.Viewport.Width - 6))
 			s.Textarea.Reset()
 			s.Viewport.GotoBottom()
+			s.Textarea.Placeholder = "Loading..."
 
 			return s, func() tea.Msg {
 				response, err := s.Config.Prompt.Request(s.Config.Key, userMessage, c.PromptHistory)
@@ -155,6 +156,7 @@ func (s *State) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				s.Conversations[s.ConvSelection] = t
 				s.ConvSelection--
 				c = &s.Conversations[s.ConvSelection]
+				s.Conversations.SaveConversations()
 				s.Viewport.SetContent(c.Messages.Render(s.Viewport.Width - 6))
 			}
 		case tea.KeyShiftRight:
@@ -164,6 +166,7 @@ func (s *State) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				s.Conversations[s.ConvSelection] = t
 				s.ConvSelection++
 				c = &s.Conversations[s.ConvSelection]
+				s.Conversations.SaveConversations()
 				s.Viewport.SetContent(c.Messages.Render(s.Viewport.Width - 6))
 			}
 		case tea.KeyF12:
