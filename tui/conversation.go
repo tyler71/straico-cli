@@ -12,6 +12,7 @@ import (
 const saveFile = "conversations.json"
 
 type Conversation struct {
+	pSelection    int
 	PromptHistory []string `json:"prompt_history"`
 	Messages      Messages `json:"messages"`
 }
@@ -21,7 +22,39 @@ func (c Conversations) InitConversation(channel int) {
 	c[channel] = Conversation{
 		PromptHistory: make([]string, 0, prompt.MaxContextLength),
 		Messages:      make(Messages, 0, prompt.MaxContextLength*2),
+		pSelection:    -1,
 	}
+}
+
+// RecentPrompt 1 to get the prompt to the right, -1 to get the prompt to the left
+// 0 to reset to the end
+func (c *Conversation) RecentPrompt(direction int) string {
+	// If it is init value, set to the end of the list
+	if c.pSelection == -1 {
+		c.pSelection = len(c.PromptHistory)
+	}
+	// No bread? No prompt for you!
+	if len(c.PromptHistory) == 0 {
+		return ""
+	}
+	if direction == 1 && c.pSelection+1 > len(c.PromptHistory)-1 {
+		c.pSelection = len(c.PromptHistory)
+		return ""
+	} else if direction == -1 && c.pSelection-1 < 0 {
+		return c.PromptHistory[c.pSelection]
+	} else if direction == 0 {
+		c.pSelection = len(c.PromptHistory)
+		return c.PromptHistory[c.pSelection-1]
+	}
+	switch direction {
+	case 1:
+		c.pSelection++
+		return c.PromptHistory[c.pSelection]
+	case -1:
+		c.pSelection--
+		return c.PromptHistory[c.pSelection]
+	}
+	return ""
 }
 
 func (c Conversations) getConfigDir() (string, error) {

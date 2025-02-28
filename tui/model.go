@@ -118,6 +118,12 @@ func (s *State) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return s, tea.Quit
 		case tea.KeyUp, tea.KeyDown, tea.KeyPgUp, tea.KeyPgDown:
 			s.Viewport, _ = s.Viewport.Update(msg)
+		case tea.KeyLeft:
+			previousMsg := c.RecentPrompt(-1)
+			s.Textarea.SetValue(previousMsg)
+		case tea.KeyRight:
+			nextMsg := c.RecentPrompt(1)
+			s.Textarea.SetValue(nextMsg)
 		case tea.KeyEnd:
 			s.Viewport.GotoBottom()
 			s.Viewport, _ = s.Viewport.Update(msg)
@@ -126,11 +132,13 @@ func (s *State) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			s.Viewport, _ = s.Viewport.Update(msg)
 		case tea.KeyEnter:
 			userMessage := s.Textarea.Value()
+			c.RecentPrompt(0)
 			if strings.Trim(userMessage, " ") == "" {
 				s.Textarea.Reset()
 				return s, nil
 			}
 			c.PromptHistory = append(c.PromptHistory, userMessage)
+			c.RecentPrompt(0)
 			c.Messages = append(c.Messages, s.SenderStyle.Render("You: ")+userMessage)
 			s.Viewport.SetContent(c.Messages.Render(s.Viewport.Width - 6))
 			s.Textarea.Reset()
@@ -175,8 +183,8 @@ func (s *State) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			s.Conversations.InitConversation(s.ConvSelection)
 			s.Conversations.SaveConversations()
 		default:
+			c.RecentPrompt(0)
 			var command tea.Cmd
-			//s.textarea, command = s.textarea.Update(msg)
 			return s, command
 		}
 
