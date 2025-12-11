@@ -33,12 +33,14 @@ func Init() *ConfigFile {
 	configFile := ConfigFile{}
 	err := configFile.LoadConfig()
 	if err != nil {
-		os.Stderr.Write([]byte(err.Error()))
+		_, _ = os.Stderr.Write([]byte(err.Error()))
 	}
-	if saveModel == true && modelFlagModified {
-		saveConfig = true
-		informationOnly = true
+	if modelFlagModified {
 		configFile.Model = model
+		if saveModel {
+			saveConfig = true
+			informationOnly = true
+		}
 	}
 	if apiKey != "" {
 		saveConfig = true
