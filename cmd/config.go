@@ -3,10 +3,11 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/tyler71/straico-cli/m/v0/prompt"
 	"os"
 	"path/filepath"
 	"runtime"
+
+	"github.com/tyler71/straico-cli/m/v0/prompt"
 )
 
 type ConfigFile struct {

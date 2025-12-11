@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 app_name="straico-cli"
 module_name="github.com/tyler71/straico-cli/m/v0"

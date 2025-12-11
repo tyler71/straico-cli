@@ -9,16 +9,13 @@ import (
 	"strings"
 )
 
-const urlPrefix = "https://api.straico.com/v1/prompt/completion"
-
-//const urlPrefix = "http://localhost:3002/v1/prompt/completion"
-
 type Prompt struct {
 	Message     string   `json:"message"`
 	Model       []string `json:"models"`
 	FileUrls    []string `json:"file_urls,omitempty"`
 	YoutubeUrls []string `json:"youtube_urls,omitempty"`
 	MaxToken    int      `json:"max_tokens,omitempty"`
+	UrlPrefix   string
 }
 
 const MaxContextLength = 25
@@ -41,7 +38,7 @@ func (p Prompt) Request(key string, text string, context []string) (response Str
 	}
 	jsonAbc, _ := json.Marshal(p)
 	client := &http.Client{}
-	req, _ := http.NewRequest("POST", urlPrefix, bytes.NewBuffer(jsonAbc))
+	req, _ := http.NewRequest("POST", p.UrlPrefix, bytes.NewBuffer(jsonAbc))
 
 	req.Header = http.Header{
 		"Authorization": []string{"Bearer " + key},

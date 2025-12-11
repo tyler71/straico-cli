@@ -12,8 +12,12 @@ import (
 	"strconv"
 )
 
+// Build Args
+var promptUrlPrefix = "https://api.straico.com/v1/prompt/completion"
+
 func main() {
 	configFile := cmd.Init()
+	configFile.Prompt.UrlPrefix = promptUrlPrefix
 
 	state := tui.State{}
 	p := tea.NewProgram(

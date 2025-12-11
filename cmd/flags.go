@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	flag "github.com/spf13/pflag"
 	"log"
 	"os"
+
+	flag "github.com/spf13/pflag"
 )
 
 var (
@@ -49,7 +50,7 @@ func Init() *ConfigFile {
 		if err != nil {
 			log.Println("Unable to save config file")
 		} else {
-			os.Stdout.Write([]byte("config saved\n"))
+			_, _ = os.Stdout.Write([]byte("config saved\n"))
 		}
 	}
 
@@ -57,12 +58,12 @@ func Init() *ConfigFile {
 		informationOnly = true
 		models, err := GetModels(configFile.Key)
 		if err != nil {
-			os.Stderr.Write([]byte(err.Error()))
+			_, _ = os.Stderr.Write([]byte(err.Error()))
 		}
 
 		for _, m := range models {
 			outputString := fmt.Sprintf("%s\n\tModel: %s\n\tPricing: %d\n", m.Name, m.Id, m.Pricing)
-			os.Stdout.Write([]byte(outputString))
+			_, _ = os.Stdout.Write([]byte(outputString))
 		}
 	}
 
