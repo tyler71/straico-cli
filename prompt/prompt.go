@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type Prompt struct {
@@ -20,6 +21,10 @@ type Prompt struct {
 
 const MaxContextLength = 25
 
+var httpClient = http.Client{
+	Timeout: time.Second * 20,
+}
+
 // Request main entrypoint, This requests from the api and returns the response.
 func (p Prompt) Request(key string, text string, context []string) (response StraicoResponse, err error) {
 	promptHistory := strings.Join(context, "\n")
@@ -29,15 +34,15 @@ func (p Prompt) Request(key string, text string, context []string) (response Str
 	}
 	if len(context) > 1 {
 		if contextLength > 1000 {
-			p.Message = "Answer the question using the context below.\n" + promptHistory[contextLength-1000:] + "\nQuestion:" + text + "\nAnswer:"
+			p.Message = "Answer the question using the context below. Do not mention the context\n" + promptHistory[contextLength-1000:] + "\nQuestion:" + text + "\nAnswer:"
 		} else {
-			p.Message = "Answer the question using the context below.\n" + promptHistory + "\nQuestion:" + text + "\nAnswer:"
+			p.Message = "Answer the question using the context below. Do not mention the context\n" + promptHistory + "\nQuestion:" + text + "\nAnswer:"
 		}
 	} else {
 		p.Message = text
 	}
 	jsonAbc, _ := json.Marshal(p)
-	client := &http.Client{}
+	client := &httpClient
 	req, _ := http.NewRequest("POST", p.UrlPrefix, bytes.NewBuffer(jsonAbc))
 
 	req.Header = http.Header{
