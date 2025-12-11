@@ -21,7 +21,7 @@ var (
 
 func Init() *ConfigFile {
 	flag.BoolVar(&saveModel, "save-model", false, "Use the model listed by -m for future queries")
-	flag.StringVarP(&model, "model", "m", "anthropic/claude-3-haiku:beta", "Model to use")
+	flag.StringVarP(&model, "model", "m", "openai/gpt-4.1-mini", "Model to use")
 	youtubeYourls = flag.StringSlice("youtube-url", nil, "--youtube-url link1 --youtube-url link2")
 	fileUrls = flag.StringSlice("file-url", nil, "--file-url link1 --file-url link2")
 	flag.BoolVarP(&listModels, "list-models", "l", false, "List models")

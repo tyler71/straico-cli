@@ -24,7 +24,7 @@ The following actions are available:
 Usage of straico-cli:
       --file-url strings      --file-url link1 --file-url link2
   -l, --list-models           List models
-  -m, --model string          Model to use (default "anthropic/claude-3-haiku:beta")
+  -m, --model string          Model to use (default "openai/gpt-4o-mini")
       --save-key string       Straico API key
       --save-model            Use the model listed by -m for future queries
       --youtube-url strings   --youtube-url link1 --youtube-url link2
