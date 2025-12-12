@@ -18,3 +18,6 @@ test:
     echo "Running tests with coverage..."
     go test -coverprofile=.coverage.out ./...
     go tool cover -func=.coverage.out
+
+demo:
+    vhs new demo.tape
