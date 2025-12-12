@@ -79,7 +79,13 @@ Type "What is the history behind the French Quarter?"
 Sleep 250ms
 Enter
 
-Sleep 5s
+Sleep 8s
+
+Down
+Sleep 0.5s
+Down 5
+
+Sleep 150ms
 
 Type "Describe Bourbon Street"
 Sleep 250ms

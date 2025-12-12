@@ -20,4 +20,4 @@ test:
     go tool cover -func=.coverage.out
 
 demo:
-    vhs new demo.tape
+    vhs demo.tape
