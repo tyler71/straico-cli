@@ -1,3 +1,10 @@
+# Shutdown
+
+Straico the company decided to shut down, with nearly no notice.
+As a result, this software is also not functional.
+
+I may revisit in the future to use another base for the AI provider.
+
 # Straico-Cli
 ![Hero image of straico-cli output asking about the history of the French Quarter](https://github.com/user-attachments/assets/62d68bb4-daf5-42ab-9354-fd1950ad5e0f)
 
